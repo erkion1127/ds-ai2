@@ -52,7 +52,7 @@ public class PersonalAssistantService {
                 .baseUrl(ollamaBaseUrl)
                 .modelName(chatModel)
                 .temperature(0.3)
-                .timeout(java.time.Duration.ofSeconds(30))
+                .timeout(java.time.Duration.ofSeconds(300))  // 5분으로 증가
                 .build();
             log.info("Successfully initialized Ollama chat model");
         } catch (Exception e) {
@@ -561,6 +561,7 @@ public class PersonalAssistantService {
                     .baseUrl(ollamaBaseUrl)
                     .modelName(chatModel)
                     .temperature(0.3)
+                    .timeout(java.time.Duration.ofSeconds(300))  // 5분으로 증가
                     .build();
             }
             
@@ -638,6 +639,7 @@ public class PersonalAssistantService {
                     .baseUrl(ollamaBaseUrl)
                     .modelName(chatModel)
                     .temperature(0.3)
+                    .timeout(java.time.Duration.ofSeconds(300))  // 5분으로 증가
                     .build();
             }
             

@@ -45,11 +45,18 @@ public class RagOrchestrator {
     }
     
     public RagResponse query(QueryRequest request) {
+        long totalStartTime = System.currentTimeMillis();
         try {
             log.debug("Processing query: {}", request.getQuery());
-            
+
+            // 임베딩 생성 시간 측정
+            long embeddingStartTime = System.currentTimeMillis();
             List<Float> queryEmbedding = embeddingService.embedText(request.getQuery());
-            
+            long embeddingTime = System.currentTimeMillis() - embeddingStartTime;
+            log.info("[Performance] Embedding generation took {}ms", embeddingTime);
+
+            // 벡터 검색 시간 측정
+            long searchStartTime = System.currentTimeMillis();
             List<Chunk> retrievedChunks;
             if (request.getStrategy() == QueryRequest.SearchStrategy.HYBRID) {
                 retrievedChunks = vectorStoreService.hybridSearch(
@@ -66,13 +73,23 @@ public class RagOrchestrator {
                         request.getFilters()
                 );
             }
-            
+            long searchTime = System.currentTimeMillis() - searchStartTime;
+            log.info("[Performance] Vector search took {}ms", searchTime);
+
             // Check if we have any retrieved chunks
             if (retrievedChunks == null || retrievedChunks.isEmpty()) {
                 log.warn("No chunks retrieved, using direct LLM response");
                 String directPrompt = "당신은 도움이 되는 AI 어시스턴트입니다. 다음 질문에 답변해주세요: " + request.getQuery();
+
+                long llmStartTime = System.currentTimeMillis();
                 String response = chatModel.generate(directPrompt);
-                
+                long llmTime = System.currentTimeMillis() - llmStartTime;
+                log.info("[Performance] Direct LLM response took {}ms", llmTime);
+
+                long totalTime = System.currentTimeMillis() - totalStartTime;
+                log.info("[Performance] Total RAG query time: {}ms (Embedding: {}ms, Search: {}ms, LLM: {}ms)",
+                        totalTime, embeddingTime, searchTime, llmTime);
+
                 return RagResponse.builder()
                         .query(request.getQuery())
                         .answer(response)
@@ -81,11 +98,20 @@ public class RagOrchestrator {
                         .retrievedChunks(0)
                         .build();
             }
-            
+
             String context = buildContext(retrievedChunks);
             String prompt = buildPrompt(request.getQuery(), context);
+
+            // LLM 응답 생성 시간 측정
+            long llmStartTime = System.currentTimeMillis();
             String response = chatModel.generate(prompt);
-            
+            long llmTime = System.currentTimeMillis() - llmStartTime;
+            log.info("[Performance] LLM response generation took {}ms", llmTime);
+
+            long totalTime = System.currentTimeMillis() - totalStartTime;
+            log.info("[Performance] Total RAG query time: {}ms (Embedding: {}ms, Search: {}ms, LLM: {}ms)",
+                    totalTime, embeddingTime, searchTime, llmTime);
+
             return RagResponse.builder()
                     .query(request.getQuery())
                     .answer(response)

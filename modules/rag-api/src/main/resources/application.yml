@@ -39,10 +39,12 @@ spring:
 
 # Ollama Configuration
 ollama:
-  base-url: ${OLLAMA_BASE_URL:https://nerget-open-webui-ollama-int.dev.nerget.co.kr}
+  #base-url: ${OLLAMA_BASE_URL:https://nerget-open-webui-ollama-int.dev.nerget.co.kr}
+  base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
   embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
-  chat-model: ${OLLAMA_CHAT_MODEL:llama3.2-vision:11b}
-  timeout: ${OLLAMA_TIMEOUT:120}
+  # M1 Mac 16GB에 최적화된 모델 설정
+  chat-model: ${OLLAMA_CHAT_MODEL:llama3.2:latest}  # 2GB 모델 사용
+  timeout: ${OLLAMA_TIMEOUT:300}  # 5분으로 증가
 
 # Chat Configuration
 chat:

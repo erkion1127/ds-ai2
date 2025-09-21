@@ -55,6 +55,7 @@ public class ChatWorkflow {
         private Map<String, Object> context;
         private boolean useRag;
         private String lastResponse;
+        private Map<String, Long> stepTimings; // 각 단계별 실행 시간 저장
     }
 
     public enum WorkflowStep {
@@ -67,38 +68,46 @@ public class ChatWorkflow {
     }
 
     public String processChat(ChatRequest request) {
+        long totalStartTime = System.currentTimeMillis();
         String sessionId = request.getSessionId();
-        WorkflowState state = stateStore.computeIfAbsent(sessionId, k -> 
+        WorkflowState state = stateStore.computeIfAbsent(sessionId, k ->
             WorkflowState.builder()
                 .sessionId(sessionId)
                 .currentStep(WorkflowStep.START.name())
                 .messages(new ArrayList<>())
                 .context(new HashMap<>())
                 .useRag(request.isUseRag())
+                .stepTimings(new HashMap<>())
                 .build()
         );
 
         // Add user message
         state.getMessages().add(UserMessage.from(request.getMessage()));
-        
-        // Execute workflow steps
+
+        // Execute workflow steps with timing
         state = executeStep(WorkflowStep.START, state);
         state = executeStep(WorkflowStep.ANALYZE_INTENT, state);
-        
+
         if (state.isUseRag()) {
             state = executeStep(WorkflowStep.RETRIEVE_CONTEXT, state);
         }
-        
+
         state = executeStep(WorkflowStep.GENERATE_RESPONSE, state);
         state = executeStep(WorkflowStep.VALIDATE_RESPONSE, state);
         state = executeStep(WorkflowStep.END, state);
-        
+
+        // 전체 실행 시간 및 각 단계별 시간 로깅
+        long totalTime = System.currentTimeMillis() - totalStartTime;
+        log.info("[Performance] Session: {}, Total time: {}ms", sessionId, totalTime);
+        log.info("[Performance] Step timings: {}", state.getStepTimings());
+
         return state.getLastResponse();
     }
 
     private WorkflowState executeStep(WorkflowStep step, WorkflowState state) {
+        long stepStartTime = System.currentTimeMillis();
         log.debug("Executing step: {} for session: {}", step, state.getSessionId());
-        
+
         switch (step) {
             case START:
                 state.setCurrentStep(WorkflowStep.ANALYZE_INTENT.name());
@@ -131,11 +140,17 @@ public class ChatWorkflow {
                 state.getMessages().add(AiMessage.from(state.getLastResponse()));
                 break;
         }
-        
+
+        // 각 단계 실행 시간 기록
+        long stepDuration = System.currentTimeMillis() - stepStartTime;
+        state.getStepTimings().put(step.name(), stepDuration);
+        log.info("[Performance] Step {} completed in {}ms", step.name(), stepDuration);
+
         return state;
     }
 
     private void analyzeIntent(WorkflowState state) {
+        long startTime = System.currentTimeMillis();
         // Analyze user intent using LLM
         String lastUserMessage = getLastUserMessage(state);
         
@@ -154,9 +169,11 @@ public class ChatWorkflow {
         }
         
         log.debug("Intent analysis result: {}", state.getContext().get("needsSearch"));
+        log.info("[Performance] Intent analysis took {}ms", System.currentTimeMillis() - startTime);
     }
 
     private void retrieveContext(WorkflowState state) {
+        long startTime = System.currentTimeMillis();
         String lastUserMessage = getLastUserMessage(state);
         
         try {
@@ -173,9 +190,11 @@ public class ChatWorkflow {
             log.warn("Failed to retrieve context: {}", e.getMessage());
             state.getContext().put("retrievedContext", "");
         }
+        log.info("[Performance] Context retrieval (RAG) took {}ms", System.currentTimeMillis() - startTime);
     }
 
     private void generateResponse(WorkflowState state) {
+        long startTime = System.currentTimeMillis();
         String lastUserMessage = getLastUserMessage(state);
         String context = (String) state.getContext().getOrDefault("retrievedContext", "");
         
@@ -201,9 +220,11 @@ public class ChatWorkflow {
         state.setLastResponse(response);
         
         log.debug("Generated response of length: {}", response.length());
+        log.info("[Performance] Response generation (Ollama) took {}ms", System.currentTimeMillis() - startTime);
     }
 
     private void validateResponse(WorkflowState state) {
+        long startTime = System.currentTimeMillis();
         // Validate response quality
         String response = state.getLastResponse();
         
@@ -229,6 +250,7 @@ public class ChatWorkflow {
         } catch (Exception e) {
             log.error("Failed to validate response: {}", e.getMessage());
         }
+        log.info("[Performance] Response validation took {}ms", System.currentTimeMillis() - startTime);
     }
 
     private String getLastUserMessage(WorkflowState state) {
