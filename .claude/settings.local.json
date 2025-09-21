@@ -32,7 +32,8 @@
       "Bash(npx shadcn@latest init:*)",
       "Bash(npx shadcn@latest add:*)",
       "Bash(git add:*)",
-      "Read(//Users/ijeongseob/IdeaProjects/**)"
+      "Bash(gradle:*)",
+      "Bash(mvn:*)"
     ],
     "deny": [],
     "ask": []
