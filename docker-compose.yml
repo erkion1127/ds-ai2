@@ -1,0 +1,143 @@
+version: '3.8'
+
+services:
+  # Elasticsearch for vector search and BM25
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.1
+    container_name: rag-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - cluster.name=rag-cluster
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - rag-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Kibana for Elasticsearch monitoring (optional)
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.1
+    container_name: rag-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - xpack.security.enabled=false
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - rag-network
+
+  # Ollama for local LLM and embeddings
+  ollama:
+    image: ollama/ollama:latest
+    container_name: rag-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - rag-network
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+    command: serve
+
+  # PostgreSQL for metadata storage (optional)
+  postgres:
+    image: postgres:16-alpine
+    container_name: rag-postgres
+    environment:
+      - POSTGRES_USER=raguser
+      - POSTGRES_PASSWORD=ragpass
+      - POSTGRES_DB=ragdb
+    ports:
+      - "15432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - rag-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U raguser -d ragdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: rag-redis
+    ports:
+      - "16379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - rag-network
+    command: redis-server --appendonly yes
+
+  # Model downloader - pulls required models on startup
+  model-setup:
+    image: ollama/ollama:latest
+    container_name: rag-model-setup
+    depends_on:
+      - ollama
+    networks:
+      - rag-network
+    volumes:
+      - ./scripts:/scripts
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      "sleep 10 && 
+       ollama pull nomic-embed-text && 
+       ollama pull llama3.2 && 
+       ollama pull bge-m3 &&
+       echo 'Models downloaded successfully'"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+
+  # RAG API Application (uncomment when ready to deploy)
+  # rag-api:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: rag-api
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=docker
+  #     - OLLAMA_BASE_URL=http://ollama:11434
+  #     - ES_HOST=elasticsearch
+  #     - ES_PORT=9200
+  #     - POSTGRES_HOST=postgres
+  #     - POSTGRES_PORT=5432
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #   depends_on:
+  #     - elasticsearch
+  #     - ollama
+  #     - postgres
+  #     - redis
+  #   networks:
+  #     - rag-network
+
+networks:
+  rag-network:
+    driver: bridge
+
+volumes:
+  elasticsearch-data:
+  ollama-data:
+  postgres-data:
+  redis-data:

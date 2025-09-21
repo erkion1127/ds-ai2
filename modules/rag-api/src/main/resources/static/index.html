@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 채팅</title>
+    <link rel="stylesheet" href="chat.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>🤖 AI 어시스턴트</h1>
+            <div class="header-controls">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="ragToggle" checked>
+                    <span class="slider"></span>
+                    <span class="toggle-label">RAG 모드</span>
+                </label>
+                <label class="toggle-switch" for="directMode">
+                    <input type="checkbox" id="directMode">
+                    <span class="slider"></span>
+                    <span class="toggle-label">Direct Ollama</span>
+                </label>
+                <select id="modelSelect" class="model-select" style="display: none;">
+                    <option value="">기본 모델</option>
+                    <option value="llama3.2-vision:11b">llama3.2-vision:11b</option>
+                    <option value="llama3.1:8b-instruct-q4_K_M">llama3.1:8b</option>
+                </select>
+                <button id="newChatBtn" class="new-chat-btn">새 대화</button>
+            </div>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="welcome-message">
+                <p>안녕하세요! AI 어시스턴트입니다.</p>
+                <p>무엇을 도와드릴까요?</p>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <div class="input-wrapper">
+                <textarea 
+                    id="messageInput" 
+                    class="message-input" 
+                    placeholder="메시지를 입력하세요..."
+                    rows="1"
+                ></textarea>
+                <button id="sendBtn" class="send-btn" disabled>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="input-info">
+                <span id="sessionInfo">세션: <span id="sessionId">-</span></span>
+                <span id="charCount">0 / 1000</span>
+            </div>
+        </div>
+    </div>
+    
+    <script src="chat.js"></script>
+</body>
+</html>

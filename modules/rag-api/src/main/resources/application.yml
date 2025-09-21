@@ -1,0 +1,106 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: rag-api
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
+  
+  # MySQL DataSource Configuration
+  datasource:
+    url: jdbc:mysql://localhost:3306/js?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
+    username: nerget-user
+    password: nerget
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        show_sql: false
+        use_sql_comments: true
+    open-in-view: false
+
+# Ollama Configuration
+ollama:
+  base-url: ${OLLAMA_BASE_URL:https://nerget-open-webui-ollama-int.dev.nerget.co.kr}
+  embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+  chat-model: ${OLLAMA_CHAT_MODEL:llama3.2-vision:11b}
+  timeout: ${OLLAMA_TIMEOUT:120}
+
+# Chat Configuration
+chat:
+  memory:
+    window-size: ${CHAT_MEMORY_WINDOW:10}
+  default-system-prompt: "당신은 친절하고 도움이 되는 AI 어시스턴트입니다."
+
+# Elasticsearch Configuration  
+elasticsearch:
+  host: ${ES_HOST:127.0.0.1}
+  port: ${ES_PORT:9200}
+  index: ${ES_INDEX:rag-chunks}
+
+# Ingestion Configuration
+ingestion:
+  chunk-size: ${CHUNK_SIZE:500}
+  chunk-overlap: ${CHUNK_OVERLAP:100}
+  batch-size: ${BATCH_SIZE:10}
+
+# Logging
+logging:
+  level:
+    com.dsai.rag: DEBUG
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  health:
+    elasticsearch:
+      enabled: true
+
+# Weather Agent Configuration
+weather:
+  openweather:
+    api-key: ${OPENWEATHER_API_KEY:}  # OpenWeather API 키 설정 필요
+    base-url: ${OPENWEATHER_BASE_URL:https://api.openweathermap.org/data/2.5}
+    timeout: ${OPENWEATHER_TIMEOUT:5000}
+  cache:
+    ttl-seconds: ${WEATHER_CACHE_TTL:600}  # 캐시 유효시간 (기본 10분)
+    max-size: ${WEATHER_CACHE_SIZE:1000}   # 최대 캐시 항목 수
+  default:
+    timezone: ${WEATHER_DEFAULT_TZ:Asia/Seoul}
+    locale: ${WEATHER_DEFAULT_LOCALE:ko-KR}
+    unit: ${WEATHER_DEFAULT_UNIT:metric}   # metric(섭씨), imperial(화씨)
+
+# OpenAPI Documentation
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true

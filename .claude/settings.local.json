@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker:*)",
+      "Bash(curl:*)",
+      "Bash(unzip:*)",
+      "Bash(./gradlew build:*)",
+      "Bash(./gradlew:*)",
+      "Bash(python3:*)",
+      "Bash(lsof:*)",
+      "Bash(ollama pull:*)",
+      "Bash(kill:*)",
+      "Bash(open http://localhost:8080)",
+      "Bash(ollama list:*)",
+      "Bash(awk:*)",
+      "Bash(xargs kill:*)",
+      "WebFetch(domain:gget.ggame.jp)",
+      "WebFetch(domain:game8.jp)",
+      "WebFetch(domain:altema.jp)",
+      "Bash(pip3 install:*)",
+      "Bash(open http://localhost:8080/sales-dashboard.html)",
+      "Bash(mysql:*)",
+      "Bash(pkill:*)",
+      "Bash(open:*)",
+      "Bash(java:*)",
+      "Bash(npx create-next-app:*)",
+      "Bash(yes \"\")",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npx shadcn@latest init:*)",
+      "Bash(npx shadcn@latest add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

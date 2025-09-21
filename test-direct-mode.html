@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Direct Mode Test</title>
+</head>
+<body>
+    <h1>Direct Mode Toggle Test</h1>
+    
+    <div>
+        <label>
+            <input type="checkbox" id="ragToggle" checked>
+            RAG 모드
+        </label>
+    </div>
+    
+    <div>
+        <label>
+            <input type="checkbox" id="directMode">
+            Direct Ollama
+        </label>
+    </div>
+    
+    <div>
+        <select id="modelSelect" style="display: none;">
+            <option value="">기본 모델</option>
+            <option value="llama3.2-vision:11b">llama3.2-vision:11b</option>
+            <option value="llama3.1:8b-instruct-q4_K_M">llama3.1:8b</option>
+        </select>
+    </div>
+    
+    <div id="status"></div>
+    
+    <script>
+        const ragToggle = document.getElementById('ragToggle');
+        const directMode = document.getElementById('directMode');
+        const modelSelect = document.getElementById('modelSelect');
+        const status = document.getElementById('status');
+        
+        function updateStatus() {
+            status.innerHTML = `
+                <p>RAG Toggle: ${ragToggle.checked}</p>
+                <p>Direct Mode: ${directMode.checked}</p>
+                <p>Model Select Display: ${modelSelect.style.display}</p>
+                <p>RAG Disabled: ${ragToggle.disabled}</p>
+            `;
+        }
+        
+        directMode.addEventListener('change', () => {
+            console.log('Direct mode changed:', directMode.checked);
+            if (directMode.checked) {
+                ragToggle.checked = false;
+                ragToggle.disabled = true;
+                modelSelect.style.display = 'inline-block';
+            } else {
+                ragToggle.disabled = false;
+                modelSelect.style.display = 'none';
+            }
+            updateStatus();
+        });
+        
+        ragToggle.addEventListener('change', () => {
+            console.log('RAG toggle changed:', ragToggle.checked);
+            if (ragToggle.checked && directMode.checked) {
+                directMode.checked = false;
+                modelSelect.style.display = 'none';
+            }
+            updateStatus();
+        });
+        
+        updateStatus();
+    </script>
+</body>
+</html>

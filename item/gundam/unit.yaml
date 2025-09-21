@@ -1,0 +1,79 @@
+units:
+  - unit_id: "rx-78-2_ur_01"
+    names: {kr: "건담", en: "RX-78-2 Gundam", jp: "ガンダム"}
+    series: "기동전사 건담"
+    type: "MS"
+    rarity: "UR"
+    role: "All-round"
+    tags: ["Beam", "Shield", "Amuro-link"]
+    terrain: {space: "A", ground: "A", air: "B", water: "C"}
+    skills:
+      - {name: "빔 사벨 러시", kind: "active", effect: "근접 연속타(조건부 크리티컬)"}
+      - {name: "초심자의 행운", kind: "passive", effect: "HP 저시 추가 방어/회피"}
+    synergy:
+      pilots_best: ["아무로 레이"]
+      supporter_best: ["화이트베이스 운영진(예)"]
+    acquisition:
+      methods: ["develop", "event"]
+      notes: "초기/기본 개발축; 이벤트 파츠로 상위 개조 가능"
+    dev_paths:
+      parents: ["프로토타입 건담"]
+      children: ["건담(개량형)", "건담(라스트 슈팅 기믹)"]
+    notes: "초기 메타에선 범용. 이후 상위 UR 등장 시 역할 교체"
+
+  - unit_id: "zgmf-x10a_ur_01"
+    names: {kr: "프리덤 건담", en: "Freedom Gundam", jp: "フリーダムガンダム"}
+    series: "기동전사 건담 SEED"
+    type: "MS"
+    rarity: "UR"
+    role: "Shooter"
+    tags: ["Beam", "Multi-lock", "HiMAT"]
+    terrain: {space: "S", ground: "A", air: "A", water: "C"}
+    skills:
+      - {name: "풀 버스트", kind: "active", effect: "광역 다중 타겟 사격"}
+      - {name: "하이마트 전술", kind: "passive", effect: "기동/명중/다중 록온 보정"}
+    synergy:
+      pilots_best: ["키라 야마토"]
+      supporter_best: ["클라인 진영 지휘(예)"]
+    acquisition:
+      methods: ["develop", "event", "gacha"]
+      notes: "SEED 관련 메인/이벤트로 주기적 회전"
+    dev_paths:
+      parents: ["스트라이크 계열(경유)", "프로토타입 프레임(가정)"]
+      children: ["스트라이크 프리덤(경유)"]
+    notes: "광역 사격 메타에서 상성 우수"
+
+  - unit_id: "rx-0_ur_01"
+    names: {kr: "유니콘 건담", en: "RX-0 Unicorn", jp: "ユニコーンガンダム"}
+    series: "UC"
+    type: "MS"
+    rarity: "UR"
+    role: "All-round"
+    tags: ["Psycoframe", "Beam", "Shield Bits"]
+    terrain: {space: "S", ground: "A", air: "B", water: "C"}
+    skills:
+      - {name: "NT-D", kind: "active", effect: "일시 능력 해방(공/기/명 상승)"}
+      - {name: "사이코플레이트", kind: "passive", effect: "피격 시 피해감쇠/반격"}
+    synergy:
+      pilots_best: ["바나지 링크스"]
+      supporter_best: ["로니스카/라플라스 관련(예)"]
+    acquisition: {methods: ["event", "gacha"], notes: "기간 한정 이벤트 참전 잦음"}
+    dev_paths: {parents: ["유니콘 데스트로이(역진)?"], children: ["밴시", "페넥스(특수)"]}
+    notes: "EX/특수 버전 존재 가능"
+
+  - unit_id: "ms-06s_sr_01"
+    names: {kr: "자쿠 II(샤아 전용)", en: "MS-06S Zaku II (Char's)", jp: "シャア専用ザクII"}
+    series: "기동전사 건담"
+    type: "MS"
+    rarity: "SR"
+    role: "Melee"
+    tags: ["Physical", "Commander", "High-Speed"]
+    terrain: {space: "A", ground: "A", air: "C", water: "C"}
+    skills:
+      - {name: "샤아의 기동", kind: "passive", effect: "선공/회피 보정"}
+    synergy:
+      pilots_best: ["샤아 아즈나블"]
+      supporter_best: ["지온 지휘(예)"]
+    acquisition: {methods: ["develop", "capture"], notes: "초중반 파밍용"}
+
+# … 필요 수량만큼 이어서 추가
